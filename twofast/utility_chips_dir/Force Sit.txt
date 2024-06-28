@@ -1,0 +1,81 @@
+--@name Force Sit
+--@server
+
+--command: /sit on [playername],/sit x [value],/sit y [value],/sit z [value],/sit resetpos
+local Target
+local Holo=hologram.create(chip():localToWorld(Vector(0,0,-100)),Angle(0,0,90),"models/sprops/geometry/fdisc_60.mdl",Vector(1)) Holo:setMaterial("models/props_combine/portalball001_sheet")
+local Pod=prop.createSeat(Holo:localToWorld(Vector(0,0,0)),Angle(),"models/nova/chair_office01.mdl",true) Pod:setNocollideAll(true) Pod:setMass(50000)
+Holo:setColor(Color(0,0,0,0))
+Pod:setColor(Color(0,0,0,0))
+Pod:setParent(Holo)
+
+local X=0
+local Y=0
+local Z=0
+
+local function resetPos()
+    X=0
+    Y=0
+    Z=90
+end
+resetPos()
+
+hook.add("PlayerSay","GotoCommand",function(ply,txt)
+    if txt:sub(1,5) == "/sit " and ply == owner() then
+        pcall(function()
+        --Sitting on
+        if txt:sub(6,8)=="on " then
+            Target=find.playersByName(txt:sub(9))[1]
+            if not isValid(Target) then Holo:setPos(chip():getPos()) print("Callback error, Target is not valid") Pod:ejectDriver() return end
+            
+            Holo:setPos(chip():getPos())
+            timer.remove("Follow")
+            if isValid(Pod) then
+                print("You are now sitting on,",Target)
+                timer.create("Follow",0.00005,0,function()
+                    Holo:setPos(Target:getPos()+Vector(X,Y,Z))
+                end)
+                Pod:use(USE_ON,0)
+            else
+                Pod=prop.createSeat(Holo:localToWorld(Vector(0,0,0)),Angle(),"models/nova/chair_office01.mdl",true) Pod:setNocollideAll(true) Pod:setMass(50000)
+                Pod:setParent(Holo)
+                print("You are now sitting on, "..Target)
+                timer.create("Follow",0.00005,0,function()
+                    Holo:setPos(Target:getPos()+Vector(X,Y,Z))
+                end)
+                Pod:use(USE_ON,0)
+            end
+        end
+        --Resetting the X, Y, Z values
+        if txt:sub(6,13)=="resetpos" then resetPos() end
+        
+        --Changing X, Y, Z values via chat commands
+        --X
+        if txt:sub(6,7)=="x " then
+            X=tonumber(txt:sub(8))
+            Holo:setPos(Target:getPos()+Vector(X,Y,Z))
+        end
+        
+        --Y
+        if txt:sub(6,7)=="y " then
+            Y=tonumber(txt:sub(8))
+            Holo:setPos(Target:getPos()+Vector(X,Y,Z))
+        end
+        
+        --Z
+        if txt:sub(6,7)=="z " then
+            Z=tonumber(txt:sub(8))
+            Holo:setPos(Target:getPos()+Vector(X,Y,Z))
+        end
+        
+    end)
+        return ""
+    end
+end)
+
+hook.add("playerLeaveVehicle","imLazy",function(ply,vehicle)
+    if ply==owner() and vehicle==Pod then
+        Holo:setPos(chip():localToWorld(Vector(0,0,-100)))
+        timer.remove("Follow")
+    end
+end)
