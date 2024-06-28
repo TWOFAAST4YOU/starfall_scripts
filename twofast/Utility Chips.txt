@@ -1,0 +1,19 @@
+--@name Utility Chips
+--@author legokidlogan
+--@shared
+--@includedir twofast/utility_chips_dir
+
+
+--timer.simple( 1, function()
+--    dodir( "lkl/utility_chips_dir", {
+--        "lkl/undo_buffer.txt",
+--    } )
+--
+--    if CLIENT then
+--        if player() ~= owner() then return end
+--
+ --       timer.simple( 1, function()
+ --           enableHud( player(), true )
+ --       end )
+--    end
+--end )
