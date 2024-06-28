@@ -1,0 +1,39 @@
+--@name Anti-Undo
+--@server
+--/AU stop
+--/AU restart
+--chip():setPos(chip():localToWorld(Vector(0,0,5)))
+
+print("Anti-Undo enabled!")
+local function AU_start()
+    timer.create("AntiUndo",0.1,0,function()
+        if not isValid(Prop) then
+            prop.setPropUndo(true)
+            print("Anti-Undo triggered!")
+            Prop=prop.create(chip():getPos(),Angle(),"models/props_junk/watermelon01_chunk02c.mdl",true)
+        end
+    end)
+end
+
+AU_start()
+
+hook.add("playerSay","AU-chatCommands",function(ply,txt)
+    if ply==owner() and txt:sub(1,4)=="/au " then
+        --Restart Anti-Undo
+        if txt:sub(5,12)=="restart" then
+            print("Anti-Undo restarted!")
+            timer.remove("AntiUndo")
+            if isValid(Prop) then Prop:remove() end
+            AU_start()
+        end
+        
+        --Disable Anti-Undo
+        if txt:sub(5,9)=="stop" then
+            print("Anti-Undo stopped!")
+            timer.remove("AntiUndo")
+            if isValid(Prop) then Prop:remove() end
+        end
+        
+    return ""
+    end
+end)
